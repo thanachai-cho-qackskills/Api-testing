@@ -1,68 +1,67 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, request,_baseTest } from '@playwright/test';
+import { Messages } from '../page-object/datalogin';
 
-test('Send request for login Adminpanel', async({request}) => {
-    const platform = 'AdminPanel';
-    const username = 'staffmax120';
-    const password = 'Mx@12345678';
+test.describe('Login function' ,() => {
 
-    const response = await request.post('https://dev-merx-core-sy26b542ta-as.a.run.app/v1/auth/login',{
+    test.beforeAll('Login function', async()=> {
 
-        data: {
-            platform: platform,
-            username: username,
-            password: password
-        }
     })
 
-    // expect(response.status()).toBe(200) 
-    const accessToken = await response.text();
-    expect(response.ok()).toBe(true);
-    expect(username).toContain("staffmax120");
-    expect(platform).toContain("AdminPanel");
-    expect(accessToken).toContain("access_token");
-    console.log(await response.json());
-}) 
-test('Send request for login Pos', async({request}) => {
-    const platform = 'Pos';
-    const username = 'staffmax120';
-    const password = 'Mx@12345678';
+    test('Login success', async({request}) =>{
+        const response = await request.post('https://staging-merx-core-sy26b542ta-as.a.run.app/v1/auth/login',{
+            data:{
+                "platform": "AdminPanel",
+                "username": "automateapi",
+                "password": "Ok@23456"
+            }
+        })
+        expect(response.status()).toBe(200) 
 
-    const response = await request.post('https://dev-merx-core-sy26b542ta-as.a.run.app/v1/auth/login',{
+        const message = await response.text();
+        expect(message).toContain("access_token"); 
+        console.log(await response.json());
+        })
+    test('platform is empty', async({request}) =>{
+        const messages = new Messages(request);
 
-        data: {
-            platform: platform,
-            username: username,
-            password: password
-        }
+        messages.PostloginAdmin.platform = ''
+    await messages.postLogin(messages.PostloginAdmin,messages.platformisEmpty,400)
     })
+    test('platform is invalid', async({request}) =>{
+        const messages = new Messages(request);
 
-    // expect(response.status()).toBe(200) 
-    const accessToken = await response.text();
-    expect(response.ok()).toBe(true);
-    expect(username).toContain("staffmax120");
-    expect(platform).toContain("Pos");
-    expect(accessToken).toContain("access_token");
-    console.log(await response.json());
-}) 
-test.only('Send request is not success', async({request}) => {
-    const platform = 'Pos';
-    const username = 'staffmax10';
-    const password = 'Mx@12345678';
-
-    const response = await request.post('https://dev-merx-core-sy26b542ta-as.a.run.app/v1/auth/login',{
-
-        data: {
-            platform: platform,
-            username: username,
-            password: password
-        }
+        messages.PostloginAdmin.platform = 'admin'
+    await messages.postLogin(messages.PostloginAdmin,messages.platformisEmpty,400)
     })
+    test('username is empty', async({request}) =>{
+        const messages = new Messages(request);
 
+        messages.PostloginAdmin.username = ''
+    await messages.postLogin(messages.PostloginAdmin,messages.usernameisEmpty,400)
+    })
+    test('username is invalid locase string', async({request}) =>{
+        const messages = new Messages(request);
+
+        messages.PostloginAdmin.username = 'Automateapi'
+    await messages.postLogin(messages.PostloginAdmin,messages.usernameisInvalidlowcase,400)
+    })
+    test('username is invalid', async({request}) =>{
+        const messages = new Messages(request);
+
+        messages.PostloginAdmin.username = 'autoasfasfa'
+    await messages.postLogin(messages.PostloginAdmin,messages.usernameisInvalid,403)
+    })
+    test('password is empty', async({request}) =>{
+        const messages = new Messages(request);
+
+        messages.PostloginAdmin.password = ''
+    await messages.postLogin(messages.PostloginAdmin,messages.passwordisEmpty,400)
+    })
+    test('password is invalid', async({request}) =>{
+        const messages = new Messages(request);
+
+        messages.PostloginAdmin.password = 'ok@234'
+    await messages.postLogin(messages.PostloginAdmin,messages.passwordisEmpty,400)
+    })
     
-    expect(response.status()).toBe(403) 
-    const messages = await response.text();
-    expect(messages).toContain("Wrong email or password."); 
-    const statusCode = await response.text();
-    expect(statusCode).toContain("403"); 
-    console.log(await response.json());
-}) 
+})
