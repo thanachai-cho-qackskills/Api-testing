@@ -1,5 +1,6 @@
 import {test,expect,request,APIRequestContext} from '@playwright/test'
-import { access } from 'fs'
+import { testUser } from '../e2e/fixtures/login';
+import { PasswordisEmpty, Passwordisinvalid, PlatformisEmpty,PlatformisInvalid,UsernameisEmpty, UsernameisInvalid, UsernameisLowcase } from '../e2e/fixtures/ResponseLogin';
 
 export class Messages {
     readonly reqContext:APIRequestContext
@@ -17,65 +18,48 @@ export class Messages {
 
         this.reqContext = request;
         this.PostloginAdmin = {
-            "platform": "AdminPanel",
-            "username": "automateapi",
-            "password": "Ok@23456"
+            "platform": testUser.platform,
+            "username": testUser.username,
+            "password": testUser.password
         } 
-        // this.loginAdminResponse = {
-        //     "access_token": "",
-        //     "refresh_token": "m6sA1WZT5Tf4XT9d4jlG8o5TNt3S4-6BiRjgCJ_iiAqIF",
-        //     "platform": "AdminPanel"
-        // }
-        this.platformisEmpty = {
-                "message": [
-                    "platform must be one of the following values: AdminPanel, PoS"
-                ],
-                "error": "Bad Request",
-                "statusCode": 400
-        }
-        this.platformisInvalid = {
-            "message": [
-                "platform must be one of the following values: AdminPanel, PoS"
-            ],
-            "error": "Bad Request",
-            "statusCode": 400
+    this.platformisEmpty = {
+        "message":PlatformisEmpty.message,
+        "error":PlatformisEmpty.error,
+        "statusCode":PlatformisEmpty.statusCode
     }
-    this.usernameisEmpty = {
-            "message": [
-                "username must be longer than or equal to 3 characters",
-                "username must contain only letters and numbers"
-            ],
-            "error": "Bad Request",
-            "statusCode": 400
 
+    this.platformisInvalid = {
+        "message":PlatformisInvalid.message,
+        "error" : PlatformisInvalid.error,
+        "statusCode":PlatformisInvalid.statusCode
+    }
+        
+    
+    this.usernameisEmpty = {
+            "message":UsernameisEmpty.message,
+            "error": UsernameisEmpty.error,
+            "statusCode": UsernameisEmpty.statusCode
     }
     this.usernameisInvalid = {
-        "statusCode": 403,
-        "message": "Wrong email or password."
+        "message": UsernameisInvalid.message,
+        "statusCode": UsernameisInvalid.statusCode
+        
     }
     this.usernameisInvalidlowcase = {
-        "message": [
-            "username must be a lowercase string"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
+        "message" : UsernameisLowcase.message,
+        "error" : UsernameisLowcase.error,
+        "statusCode" : UsernameisLowcase.statusCode
     }
 
     this.passwordisEmpty = {
-        "message": [
-            "password must match /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&\\*\\?])[A-Za-z\\d!@#$%^&\\*\\?].*$/ regular expression",
-            "password must be longer than or equal to 8 characters"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
+        "message":PasswordisEmpty.message,
+        "error": PasswordisEmpty.error,
+        "statusCode": PasswordisEmpty.statusCode
     }
     this.passwordisInvalid = {
-        "message": [
-            "password must match /^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[!@#$%^&\\*\\?])[A-Za-z\\d!@#$%^&\\*\\?].*$/ regular expression",
-            "password must be longer than or equal to 8 characters"
-        ],
-        "error": "Bad Request",
-        "statusCode": 400
+        "message":Passwordisinvalid.message,
+        "error": Passwordisinvalid.error,
+        "statusCode": Passwordisinvalid.statusCode
     }
 }
     public async postLogin (body:any,returns:any,status:any){
@@ -93,15 +77,15 @@ export class Messages {
 
             statusResponse = response.status()
             callResponse = await response.json()
+            console.log('ressponse log',callResponse)
         })
     await test.step(`Login success status is ${status}`, async() =>{
         expect(statusResponse,'Expect status').toBe(status)
     })
      await test.step('Login success response', async() =>{
-         expect.soft(await callResponse,'can,t show data').toEqual(returns)
+         expect.soft(await callResponse,'Response call').toEqual(returns)
+         console.log('ressponse log',callResponse)
     })
-    // await test.step('safasfasfasf', async()=>{
-    //     process.env.platform = callResponse.platform
-    // })
+   
     }
 }
